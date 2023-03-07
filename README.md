@@ -26,4 +26,4 @@ The following data is available via this repository
 
 * A pdf that explains how to access and download data from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
 
-* A R file (.R) that provids code for importing and combining data tabes from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
+* A R file (.R) - 'rrsp_join.R' - that provides code for importing and combining data tabes from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
