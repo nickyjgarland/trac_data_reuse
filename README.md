@@ -25,3 +25,5 @@ The following data is available via this repository
 * A RMarkdown file (.rmd) that contains all the code utilised to compile the database used for the research presented here and the visualisations used throughout the presentation [A updated version will be avaiable soon with code for further analysis]
 
 * A pdf that explains how to access and download data from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
+
+* A R file (.R) that provids code for importing and combining data tabes from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
