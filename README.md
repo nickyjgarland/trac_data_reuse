@@ -1,5 +1,7 @@
 # 'Data re-use, digital literacy and the Roman Rural Settlement Project: Structured deposition in Roman Britain'
 
+[![DOI](https://zenodo.org/badge/602466534.svg)](https://zenodo.org/badge/latestdoi/602466534)
+
 This repository contains the presentatiion, data and training materials that accompanies the TRAC Webinar: 'Data reuse, digital literacy and the Roman Rural Settlement Project'.
 
 ## Abstract
