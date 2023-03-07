@@ -1,0 +1,354 @@
+---
+title: "'TRAC Webinar: Data reuse, digital literacy and the Roman Rural Settlement - Structured deposition in Roman Britain'
+author: "Nicky Garland"
+date: "2023-03-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+## Dependencies
+
+The following packages are required to combine the datasets and undertake the analysis and visualisation of the data. Please install these packages and run the following code chunk before undertaking the analysis below.
+
+```{r dependencies, echo=FALSE}
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+library(patchwork)
+library(tidyr)
+```
+
+## Import and combine datasets
+
+The following code chunk combines the key database tables from the ADS archive 'The Rural Settlement of Roman Britain: an online resource'. You can access this data from this link https://doi.org/10.5284/1030449 
+
+The following code will run if you download the tables and save them in a folder titled 'data'.
+
+The data is imported and a dataset created for all burial data.
+
+```{r import}
+burial<-read.csv("data/rrs_burial_data.csv")
+core<-read.csv("data/rrs_core_data.csv")
+site<-read.csv("data/rrs_site_data.csv")
+
+#join data and filter out non-burial data
+rrsp_burial<-full_join(core, site) %>% full_join(., burial) %>% 
+  filter(!BURIALS_SUMMARY %in% c("No data"))
+
+#number of entries?
+nrow(rrsp_burial)
+```
+
+## Filter for Disarticulated remains
+
+This code chunk dates the compiled dataset above and filters for all sites that have evidence for disarticulated human remains. This evidence stands as a proxy in this analysis for evidence for structured deposition in the Late Iron Age and Early Roman period.
+
+```{r disartic}
+disartic<-rrsp_burial %>% filter(DISARTIC == "TRUE")
+
+#number of entries?
+nrow(disartic)
+```
+## National dataset
+
+### Disarticulated remains per settlement size
+
+The following graph displays the settlements across the national dataset, which contained disarticulated remains ordered by size.
+
+```{r disartic set type}
+#calculate numbers of different settlement types
+disartic_set<-plyr::ddply(disartic, .(disartic$RURAL_SETTLEMENT_FORM, disartic$DOMESTIC_OCCUPATION), nrow)
+
+#rename columns
+names(disartic_set) <- c("settlement_form", "dom_occ", "count")
+
+#plot data using ggplot function
+ggplot(disartic_set) + 
+  geom_col(aes(fill=dom_occ, x=factor(settlement_form), y=count), position="stack")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  labs(x="Settlement type",y="Count", fill = "Domestic occupation?")+
+  scale_fill_manual(values = c("#66C2A5", "#F46D43"))
+
+ggsave("outputs/national_sett_type.png")
+```
+
+### Disarticulated remains per settlement size
+
+The following graph displays the settlements across the national dataset, which contained disarticulated remains ordered by size.
+
+```{r disarticulated size of settlement}
+#count number of sites per settlement size designation
+disartic_set_size<-disartic %>% dplyr::count(SETTLEMENT_SIZE)
+
+#drop first row as error in date
+disartic_set_size = disartic_set_size[-1,]
+
+#plot using ggplot
+ggplot(disartic_set_size) + 
+  geom_col(aes(x=SETTLEMENT_SIZE, y=n, fill="#66C2A5"), show.legend = FALSE)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  labs(x="Settlement size",y="Count")
+
+ggsave("outputs/national_sett_size.png")
+```
+
+### Disarticulated remains per form and size
+
+The following graph displays the national dataset by both settlement form and settlement size. 
+
+```{r disarticulated per size}
+#calculate numbers of different settlement types
+disartic_size<-plyr::ddply(disartic, .(disartic$RURAL_SETTLEMENT_FORM, disartic$SETTLEMENT_SIZE), nrow)
+
+#rename columns
+names(disartic_size) <- c("settlement_form", "size", "count")
+
+#remove null value
+disartic_size = disartic_size[-9,]
+
+#plot data using ggplot function
+ggplot(disartic_size) + 
+  geom_col(aes(fill=size, x=factor(settlement_form), y=count), position="stack")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  labs(x="Rural settlement type",y="Count", fill = "Settlement size")
+
+ggsave("outputs/national_sett_size_type.png")
+```
+
+### Disarticulated remains per geographic area
+
+The following code chunk analyses the distribution of disarticulated remains per geographic region. The geographic regions listed have been established and defined as part of the Rural Settlement of Roman Britain project.
+
+The graph demonstrates that the vast majority of sites are located in the Central Belt, which extends across the central part of the UK from east to west.
+
+```{r disartic region}
+#count number of sites per region (as designated by RRSP)
+disartic_region<-disartic %>% dplyr::count(REGION) %>% 
+  arrange(n) %>% 
+  mutate(unitary = fct_reorder(REGION, n, .desc = TRUE))
+
+#plot using ggplot
+ggplot(disartic_region)+ 
+  geom_bar(aes(x=unitary, y=n, fill = "red"), stat = "identity", show.legend = FALSE)+
+  labs(x="Region", y="Count")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave("outputs/national_region.png")
+```
+
+### Disarticulated remains - settlement location in relation to topography
+
+The following chart displays the settlement sites with disarticulated remains in relation to the topographic location of the site across the national dataset.
+
+```{r national per topography}
+#count number of sites per different topogrpahic type
+disartic_topo<-disartic %>% dplyr::count(TOPOGRAPHY) %>% 
+  arrange(n) %>% 
+  mutate(topo = fct_reorder(TOPOGRAPHY, n, .desc = TRUE))
+
+#plot using ggplot
+ggplot(disartic_topo)+ 
+  geom_bar(aes(x=topo, y=n, fill = "red"), stat = "identity", show.legend = FALSE)+
+  labs(x="Topography type", y="Count")
+
+ggsave("outputs/national_sett_topo.png")
+```
+
+### Disarticulated remains per date
+
+This graph displays the number of sites with disarticulated remains per time period for the national dataset. The graph displays the number of sites by the date in which they were founded, from the 1st century BC to the 4th century AD.
+
+```{r national per date}
+#filter data per century
+first_century_BC <- disartic |> filter(DATE_START<0) |> count() |> mutate(date ="1st century BC")
+first_century <- disartic |> filter(DATE_START>0) |> filter(DATE_START<100) |> count() |> mutate(date ="1st century AD")
+second_century <- disartic |> filter(DATE_START>101) |> filter(DATE_START<200) |> count() |> mutate(date ="2nd century AD")
+third_century <- disartic |> filter(DATE_START>201) |> filter(DATE_START<300) |> count() |> mutate(date ="3rd century AD")
+fourth_century <- disartic |> filter(DATE_START>301) |> filter(DATE_START<400) |> count()|> mutate(date ="4th century AD")
+
+#combine datasets
+dates<-rbind(first_century_BC, first_century, second_century, third_century, fourth_century)
+
+#set order of dataset
+dates$date <- factor(dates$date, levels = dates$date)
+
+#plot data using ggplot
+ggplot(dates)+ 
+  geom_bar(aes(x=date, y=n, fill = "red"), stat='identity', show.legend = FALSE)+
+  labs(x="Date", y="Count")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave("outputs/national_date.png")
+```
+
+
+## Central Belt
+
+Having established that the majority of disarticulated human remains are found on rural settlements in the Central Belt the remaining analysis focuses on this area.
+
+```{r central belt}
+#filter data for central belt region
+central<-rrsp_burial %>% filter(REGION == "Central Belt")
+
+#number of entries?
+nrow(central)
+```
+
+### Disarticulated remains - per county
+
+The following graph breaks down the number of rural settlements with disarticulated remains in the Central Belt, per modern county. This allows us to ascertain more precisely the greatest density of this type of site in this region.
+
+The graph demonstrates that the majority of rural sites are located in Gloucestershire, Cambridgeshire and Oxfordshire. This suggests that there is not a single area of density but pockets of dense activity.
+
+```{r central belt - modern county}
+#calculate numbers of different settlement types
+disartic_reg_count<-plyr::ddply(disartic, .(disartic$COUNTY, disartic$REGION), nrow)
+
+#rename columns
+names(disartic_reg_count) <- c("county", "region", "count")
+
+#filter and reorder for each county
+central_county<-disartic_reg_count %>% filter(region=="Central Belt") %>% mutate(reordered = fct_reorder(county, count, .desc = TRUE))
+
+#plot data using ggplot for each county
+ggplot(central_county)+ 
+  geom_bar(aes(x=reordered, y=count, fill = "red"), stat = "identity", show.legend = FALSE)+
+  labs(x="Central", y="Count")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave("outputs/central_county.png")
+```
+
+### Disarticulted remains per settlement type
+
+The following code chunk produces a graph that shows the number of Central Belt  sites that contain disarticulated remains organised by settlement type (e.g. complex, enclosed, unclassified, unenclosed). The graph also depicts which proportion of sites also contain evidence for domestic occupation.
+
+The graph demonstrates that the vast majority of these sites are designated as 'unclassified' settlements. The graph also shows that the majority of sites on which disarticulated remains are found also have evidence for domestic occupation.
+
+```{r central belt - disartic set type}
+#filter data for central belt for blank values
+central_filter<-central %>% filter(!central$RURAL_SETTLEMENT_FORM == "")
+
+#calculate numbers of different settlement types
+central_set<-plyr::ddply(central_filter, .(central_filter$RURAL_SETTLEMENT_FORM, central_filter$DOMESTIC_OCCUPATION), nrow)
+
+#rename columns
+names(central_set) <- c("settlement_form", "dom_occ", "count")
+
+#plot data using ggplot function
+ggplot(central_set) + 
+  geom_col(aes(fill=dom_occ, x=factor(settlement_form), y=count), position="stack")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  labs(x="Settlement type",y="Count", fill = "Domestic occupation?")+
+  scale_fill_manual(values = c("#66C2A5", "#F46D43"))
+
+ggsave("outputs/central_sett_type.png")
+```
+
+### Disarticulated remains per settlement size
+
+The following graph displays the settlements within the Central Belt, which contained disarticulated remains ordered by size.
+
+The vast majority of settlement sites that contain disarticulated remains are small (up to 3 hectares in size) or uncertain. Uncertain size relates to those settlements that are likely larger than currently known, however, further investigation is required to determine the actual size of these settlements.
+
+```{r disarticulated size of settlement}
+#count number of sites per settlement size designation
+central_set_size<-central %>% dplyr::count(SETTLEMENT_SIZE)
+
+#drop first row as error in date
+central_set_size = central_set_size[-1,]
+
+#plot using ggplot
+ggplot(central_set_size) + 
+  geom_col(aes(x=SETTLEMENT_SIZE, y=n, fill="#66C2A5"), show.legend = FALSE)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  labs(x="Settlement size",y="Count")
+
+ggsave("outputs/central_sett_size.png")
+```
+
+
+### Disarticulated remains per form and size
+
+The following graph displays the Central Belt dataset by both settlement form and settlement size. 
+
+The graph shows that a large proportion of the dataset relates to sites of an unclassified settlement type and an uncertain size. This is undesirable in terms of establishing these characteristics for this region and suggests that further data cleaning may be required.
+
+```{r disarticulated per form and size}
+#calculate numbers of different settlement types
+disartic_size<-plyr::ddply(central_filter, .(central_filter$RURAL_SETTLEMENT_FORM, central_filter$SETTLEMENT_SIZE), nrow)
+
+#rename columns
+names(disartic_size) <- c("settlement_form", "size", "count")
+
+#remove null value
+disartic_size = disartic_size[-9,]
+
+#plot data using ggplot function
+ggplot(disartic_size) + 
+  geom_col(aes(fill=size, x=factor(settlement_form), y=count), position="stack")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  labs(x="Rural settlement type",y="Count", fill = "Settlement size")
+
+ggsave("outputs/central_sett_type_size.png")
+```
+
+### Disarticulated remains - settlement location in relation to topography
+
+The following chart displays the settlement sites with disarticulated remains in relation to the topographic location of the site.
+
+The vast majority of the sites were found in river valleys, with smaller groups of sites found on a plateau / plain or on a hill.
+
+```{r central region per topography}
+#count number of sites per different topogrpahic type
+central_topo<-central %>% dplyr::count(TOPOGRAPHY) %>% 
+  arrange(n) %>% 
+  mutate(topo = fct_reorder(TOPOGRAPHY, n, .desc = TRUE))
+
+#plot using ggplot
+ggplot(central_topo)+ 
+  geom_bar(aes(x=topo, y=n, fill = "red"), stat = "identity", show.legend = FALSE)+
+  labs(x="Topography type", y="Count")
+
+ggsave("outputs/central_sett_topo.png")
+```
+
+### Disarticulated remains per date
+
+The final graph displays the number of sites with disarticulated remains per time period. The graph displays the number of sites by the date in which they were founded, from the 1st century BC to the 4th century AD.
+
+The chart demonstrates that for this region the the large proportion of sites that contain disarticulated human remains lie in the Late Iron Age (1st century BC) and Early Roman period (1st century AD).
+
+```{r central region per date}
+
+#filter data per century
+first_century_BC_c <- central |> filter(DATE_START<0) |> count() |> mutate(date ="1st century BC")
+first_century_c <- central |> filter(DATE_START>0) |> filter(DATE_START<100) |> count() |> mutate(date ="1st century AD")
+second_century_c <- central |> filter(DATE_START>101) |> filter(DATE_START<200) |> count() |> mutate(date ="2nd century AD")
+third_century_c <- central |> filter(DATE_START>201) |> filter(DATE_START<300) |> count() |> mutate(date ="3rd century AD")
+fourth_century_c <- central |> filter(DATE_START>301) |> filter(DATE_START<400) |> count()|> mutate(date ="4th century AD")
+
+#combine datasets
+dates_central<-rbind(first_century_BC_c, first_century_c, second_century_c, third_century_c, fourth_century_c)
+  
+#set order of dataset
+dates_central$date <- factor(dates_central$date, levels = dates_central$date)
+
+#plot data using ggplot
+ggplot(dates_central)+ 
+  geom_bar(aes(x=date, y=n, fill = "red"), stat='identity', show.legend = FALSE)+
+  labs(x="Date", y="Count")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave("outputs/central_date.png")
+```
