@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/602466534.svg)](https://zenodo.org/badge/latestdoi/602466534)
 
-This repository contains the presentatiion, data and training materials that accompanies the TRAC Webinar: 'Data reuse, digital literacy and the Roman Rural Settlement Project'.
+This repository contains the presentation, data and training materials that accompanies the TRAC Webinar: 'Data reuse, digital literacy and the Roman Rural Settlement Project'.
 
 A recording of this presentation can be found on Youtube [here](https://youtu.be/GekhN_7mT2c).
 
@@ -24,8 +24,8 @@ The following data is available via this repository
 
 * A pdf of the presentation given as part of the TRAC webinar - 'Data re-use, digital literacy and the Roman Rural Settlement Project: Structured deposition in Roman Britain' [The pdf contains live links to other resources throughout]
 
-* A RMarkdown file (.rmd) that contains all the code utilised to compile the database used for the research presented here and the visualisations used throughout the presentation [A updated version will be avaiable soon with code for further analysis]
+* A RMarkdown file (.rmd) that contains all the code utilised to compile the database used for the research presented here and the visualisations used throughout the presentation [A updated version will be available soon with code for further analysis]
 
 * A pdf that explains how to access and download data from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
 
-* A R file (.R) - 'rrsp_join.R' - that provides code for importing and combining data tabes from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
+* A R file (.R) - 'rrsp_join.R' - that provides code for importing and combining data tables from the ADS archive 'The Rural Settlement of Roman Britain: an online resource' https://doi.org/10.5284/1030449
