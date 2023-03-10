@@ -4,6 +4,8 @@
 
 This repository contains the presentatiion, data and training materials that accompanies the TRAC Webinar: 'Data reuse, digital literacy and the Roman Rural Settlement Project'.
 
+A recording of this presentation can be found on Youtube [here](https://youtu.be/GekhN_7mT2c).
+
 ## Abstract
 
 Archaeological advocates for FAIR data, namely that which is Findable, Accessible, Interoperable and Reusable, now form part of a chorus of voices across digital humanities [(Marwick et al., 2017)](https://doi.org/10.31235/osf.io/72n8g). In Britain the archaeological data deluge (e.g. [Bevan, 2015](https://doi.org/10.15184/aqy.2015.102)) has been tempered in many ways to make this data Findable, Accessible and Interoperable, however, there has been a distinct lack of data reuse. This deficit is partly attributable to the nature of academia, which appears to assign a higher importance on primary data creation, but also due to a general lack of digital literacy training in standard archaeological curricula ([Garstki, 2022](https://doi.org/10.1017/aap.2022.3)). 
